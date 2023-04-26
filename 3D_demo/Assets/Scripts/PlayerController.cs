@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour
         {
             touch = Input.GetTouch(0);
 
-            if (touch.phase == TouchPhase.Began)
+            /*if (touch.phase == TouchPhase.Began)
             {
                 DragStart();
             }
@@ -40,7 +40,7 @@ public class PlayerController : MonoBehaviour
             if (touch.phase == TouchPhase.Ended)
             {
                 DragRelease();
-            }
+            }*/
         }
     }
 
@@ -75,7 +75,8 @@ public class PlayerController : MonoBehaviour
         dragReleasePos.y = 0f;
         Vector3 force = dragReleasePos - dragStartPos;
         Vector3 clampedForce = Vector3.ClampMagnitude(force, maxDrag) * power;
-        rb.AddForce(clampedForce, ForceMode.Impulse);
+        Vector3 testForce = transform.forward * clampedForce.z + transform.right * clampedForce.x;
+        rb.AddForce(testForce, ForceMode.Impulse);
     }
 
 }
