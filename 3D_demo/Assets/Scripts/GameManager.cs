@@ -8,9 +8,22 @@ public class GameManager : MonoBehaviour
 
     public static GameManager Instance { get { return _instance; } }
     [SerializeField] private GameObject main_camera;
-    [SerializeField] private Vector3 cam_offset;
+    [SerializeField] private Vector3 cam_pos_offset;
+    [SerializeField] private Vector3 cam_rot_offset;
     [SerializeField] private float cam_speed;
+
+    private GameObject ground_planet;
     private GameObject player;
+
+    float distance;
+    Vector3 radius_R;
+    Vector3 cam_pos;
+    Quaternion cam_rot;
+    public float speed;
+    Vector3 moveDirection;
+    Vector3 sphereNormal;
+
+    public float gravity = -120f;
     private void Awake()
     {
         if (_instance != null && _instance != this) Destroy(gameObject);
@@ -19,25 +32,33 @@ public class GameManager : MonoBehaviour
             _instance = this;
             DontDestroyOnLoad(gameObject);
         }
+
+        ground_planet = GameObject.FindGameObjectWithTag("Ground");
         player = GameObject.FindGameObjectWithTag("Player");
+        distance = (player.transform.lossyScale.x + ground_planet.transform.lossyScale.x) * 0.5f;
     }
     private void FixedUpdate()
     {
-        Vector3 tempPos = Vector3.Lerp(main_camera.transform.position, player.transform.position + player.transform.up * cam_offset.y + player.transform.forward * cam_offset.z, cam_speed);
-        // player.transform.rotation 기준으로 x-axis 45도 만큼 회전한 쿼터니언 생성
-        Quaternion rotateQuaternion = Quaternion.Lerp(main_camera.transform.rotation, player.transform.rotation * Quaternion.AngleAxis(45f, player.transform.right), cam_speed);
+        PlayerOnPlanet();
+    }
+    public void Attract()
+    {
+        Vector3 gravityUp = (player.transform.position - ground_planet.transform.position).normalized;
+        Vector3 localUp = player.transform.up;
 
-        // MainCamera의 transform.rotation에 회전 적용
-        //Camera.main.transform.rotation = player.transform.rotation * rotateQuaternion;
+        //float player_sp = player.GetComponent<Rigidbody>().velocity.magnitude;
+        player.transform.GetComponent<Rigidbody>().AddForce(gravityUp * gravity);
 
-        main_camera.transform.SetPositionAndRotation(tempPos, rotateQuaternion);
-        float radius_R = 5.5f;
-        float distance_R = Vector3.Distance(player.transform.position, Vector3.zero);
-        if (distance_R > radius_R)
+        Quaternion targetRotation = Quaternion.FromToRotation(localUp, gravityUp) * player.transform.rotation;
+        player.transform.rotation = Quaternion.Slerp(player.transform.rotation, targetRotation, 50f * Time.deltaTime);
+    }
+    private void PlayerOnPlanet()
+    {
+        Vector3 radius_vec = player.transform.position - ground_planet.transform.position;
+        if (radius_vec.magnitude > distance)
         {
-            player.transform.position = (player.transform.position - Vector3.zero).normalized * radius_R;
+            Vector3 targetPosition = ground_planet.transform.position + radius_vec.normalized * distance;
+            player.transform.position = Vector3.Lerp(player.transform.position, targetPosition, 50f * Time.deltaTime);
         }
-        player.transform.up = (player.transform.position - Vector3.zero).normalized;
-        player.GetComponent<Rigidbody>().velocity = player.transform.forward * 3f;
     }
 }
