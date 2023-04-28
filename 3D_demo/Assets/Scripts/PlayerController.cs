@@ -9,21 +9,22 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     private LineRenderer lr;
 
-    //[SerializeField] private float power = 5f;
     [SerializeField] private float maxDrag = 100f;
 
     Vector3 dragStartPos;
     Vector3 draggingPos;
     Vector3 dragReleasePos;
     Touch touch;
-    Vector3 cur_velocity;
+
+    Vector2 last_joystick_input;
+    [SerializeField] private float dir_length = 10f;
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         lr = GetComponent<LineRenderer>();
         rb.useGravity = false;
     }
-    private void Update()
+    /*private void Update()
     {
         if (Input.touchCount > 0)
         {
@@ -42,12 +43,11 @@ public class PlayerController : MonoBehaviour
                 DragRelease();
             }
         }
-    }
+    }*/
     private void FixedUpdate()
     {
-        GameManager.Instance.Attract();
-        //rb.MovePosition(rb.position + transform.TransformDirection());
-        //rb.velocity = transform.forward * cur_velocity.z + transform.right * cur_velocity.x;
+        GroundPlanet.Instance.Attract(transform);
+        GroundPlanet.Instance.PlayerOnPlanet();
     }
 
     private void DragStart()
@@ -65,7 +65,6 @@ public class PlayerController : MonoBehaviour
         draggingPos.z = draggingPos.y;
         draggingPos.y = 0f;
         Vector3 diff_vec = draggingPos - dragStartPos;
-        //print(diff_vec);
         diff_vec.x /= Screen.width / 2;
         diff_vec.z /= Screen.height / 2;
         lr.positionCount = 2;
@@ -82,14 +81,37 @@ public class PlayerController : MonoBehaviour
         Vector3 force = dragReleasePos - dragStartPos;
         force.x /= Screen.width;
         force.z /= Screen.height;
-        print(force);
         //Vector3 clampedForce = Vector3.ClampMagnitude(force, maxDrag) * power;
         Vector3 clampedForce = maxDrag * force;
-        //Vector3 testForce = transform.forward * clampedForce.z + transform.right * clampedForce.x;
-        //rb.AddForce(testForce, ForceMode.Impulse);
-        //rb.velocity = testForce;
-        //cur_velocity = clampedForce;
         rb.AddRelativeForce(Vector3.forward * clampedForce.z + Vector3.right * clampedForce.x, ForceMode.Impulse);
     }
+    public void DragControl(Vector2 joystick_input)
+    {
+        if (Input.touchCount > 0)
+        {
+            touch = Input.GetTouch(0);
 
+            if (touch.phase == TouchPhase.Began)
+            {
+                lr.positionCount = 1;
+                lr.SetPosition(0, Vector3.zero);
+            }
+            if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
+            {
+                if (joystick_input.y < 0f) joystick_input.y = 0f;
+                lr.positionCount = 2;
+                lr.SetPosition(0, Vector3.zero);
+                lr.SetPosition(1, dir_length * (joystick_input.y * Vector3.forward + joystick_input.x * Vector3.right));
+
+                last_joystick_input = joystick_input;
+            }
+            if (touch.phase == TouchPhase.Ended)
+            {
+                lr.positionCount = 0;
+                Vector2 clampedForce = maxDrag * last_joystick_input;
+                print(clampedForce.magnitude);
+                rb.AddRelativeForce(Vector3.forward * clampedForce.y + Vector3.right * clampedForce.x, ForceMode.Impulse);
+            }
+        }
+    }
 }

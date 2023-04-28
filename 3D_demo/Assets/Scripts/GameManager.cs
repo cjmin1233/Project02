@@ -7,23 +7,21 @@ public class GameManager : MonoBehaviour
     private static GameManager _instance;
 
     public static GameManager Instance { get { return _instance; } }
+
     [SerializeField] private GameObject main_camera;
     [SerializeField] private Vector3 cam_pos_offset;
-    [SerializeField] private Vector3 cam_rot_offset;
+    [SerializeField] private Quaternion cam_rot_offset;
     [SerializeField] private float cam_speed;
 
     private GameObject ground_planet;
     private GameObject player;
+    private Transform cam_target_transform;
 
-    float distance;
-    Vector3 radius_R;
-    Vector3 cam_pos;
-    Quaternion cam_rot;
-    public float speed;
-    Vector3 moveDirection;
-    Vector3 sphereNormal;
+    Vector3 cam_target_pos;
+    Quaternion cam_target_rot;
 
-    public float gravity = -120f;
+    public Joystick joystick;
+    Vector2 joystick_input;
     private void Awake()
     {
         if (_instance != null && _instance != this) Destroy(gameObject);
@@ -35,30 +33,25 @@ public class GameManager : MonoBehaviour
 
         ground_planet = GameObject.FindGameObjectWithTag("Ground");
         player = GameObject.FindGameObjectWithTag("Player");
-        distance = (player.transform.lossyScale.x + ground_planet.transform.lossyScale.x) * 0.5f;
+        cam_target_transform = player.transform.Find("cam_target");
+    }
+    private void Update()
+    {
+        joystick_input.x = joystick.Horizontal;
+        joystick_input.y = joystick.Vertical;
+        player.GetComponent<PlayerController>().DragControl(joystick_input);
     }
     private void FixedUpdate()
     {
-        PlayerOnPlanet();
+        PlayerCamera();
     }
-    public void Attract()
+    private void PlayerCamera()
     {
-        Vector3 gravityUp = (player.transform.position - ground_planet.transform.position).normalized;
-        Vector3 localUp = player.transform.up;
+        cam_target_transform.SetLocalPositionAndRotation(cam_pos_offset, cam_rot_offset);
 
-        //float player_sp = player.GetComponent<Rigidbody>().velocity.magnitude;
-        player.transform.GetComponent<Rigidbody>().AddForce(gravityUp * gravity);
+        cam_target_pos = Vector3.Lerp(main_camera.transform.position, cam_target_transform.position, cam_speed);
+        cam_target_rot = Quaternion.Slerp(main_camera.transform.rotation, cam_target_transform.rotation, cam_speed);
 
-        Quaternion targetRotation = Quaternion.FromToRotation(localUp, gravityUp) * player.transform.rotation;
-        player.transform.rotation = Quaternion.Slerp(player.transform.rotation, targetRotation, 50f * Time.deltaTime);
-    }
-    private void PlayerOnPlanet()
-    {
-        Vector3 radius_vec = player.transform.position - ground_planet.transform.position;
-        if (radius_vec.magnitude > distance)
-        {
-            Vector3 targetPosition = ground_planet.transform.position + radius_vec.normalized * distance;
-            player.transform.position = Vector3.Lerp(player.transform.position, targetPosition, 50f * Time.deltaTime);
-        }
+        main_camera.transform.SetPositionAndRotation(cam_target_pos, cam_target_rot);
     }
 }
