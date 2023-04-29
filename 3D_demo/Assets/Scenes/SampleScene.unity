@@ -258,6 +258,9 @@ MonoBehaviour:
   cam_rot_offset: {x: 0.6427876, y: 0, z: 0, w: 0.76604444}
   cam_speed: 0.2
   joystick: {fileID: 948630244}
+  meteor_spawn_range:
+  - 2
+  - 2.5
 --- !u!4 &559095937
 Transform:
   m_ObjectHideFlags: 0
@@ -394,7 +397,7 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 848136729}
-  m_Material: {fileID: 13400000, guid: d99f2902204ef4c488ed47079a7f8616, type: 2}
+  m_Material: {fileID: 13400000, guid: 3af920ca873c82d4a8dafe113daf2ea4, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -528,7 +531,7 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 899794611}
-  m_Material: {fileID: 13400000, guid: d99f2902204ef4c488ed47079a7f8616, type: 2}
+  m_Material: {fileID: 13400000, guid: 3af920ca873c82d4a8dafe113daf2ea4, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -1018,4 +1021,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 899794616}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2026387131
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2026387133}
+  - component: {fileID: 2026387132}
+  m_Layer: 0
+  m_Name: ObjectPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2026387132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026387131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 110a0a836a2448c4e8d9ad11cdf10ff6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectPrefab:
+  - {fileID: 7567489350212854677, guid: 7fd43a9e7eb7ea948b12aa773fdbcb99, type: 3}
+--- !u!4 &2026387133
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026387131}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

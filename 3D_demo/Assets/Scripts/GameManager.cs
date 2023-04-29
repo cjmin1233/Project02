@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
 
     public Joystick joystick;
     Vector2 joystick_input;
+
+    [SerializeField] private float[] meteor_spawn_range;
     private void Awake()
     {
         if (_instance != null && _instance != this) Destroy(gameObject);
@@ -40,6 +42,7 @@ public class GameManager : MonoBehaviour
         joystick_input.x = joystick.Horizontal;
         joystick_input.y = joystick.Vertical;
         player.GetComponent<PlayerController>().DragControl(joystick_input);
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began) SpawnMeteor();
     }
     private void FixedUpdate()
     {
@@ -53,5 +56,17 @@ public class GameManager : MonoBehaviour
         cam_target_rot = Quaternion.Slerp(main_camera.transform.rotation, cam_target_transform.rotation, cam_speed);
 
         main_camera.transform.SetPositionAndRotation(cam_target_pos, cam_target_rot);
+    }
+    private void SpawnMeteor()
+    {
+        float ground_radius = ground_planet.transform.lossyScale.x * ground_planet.GetComponent<SphereCollider>().radius;
+        float radius = Random.Range(meteor_spawn_range[0] * ground_radius, meteor_spawn_range[1] * ground_radius);
+        float pi = Random.Range(0, 180f);
+        float theta = Random.Range(0, 360f);
+        Vector3 spawn_pos = ground_planet.transform.position + radius * new Vector3(Mathf.Cos(pi) * Mathf.Cos(theta), Mathf.Sin(pi), Mathf.Cos(pi) * Mathf.Sin(theta));
+
+        var obj = ObjectPool.Instance.GetFromPool(0);
+        obj.transform.position = spawn_pos;
+        obj.SetActive(true);
     }
 }

@@ -28,12 +28,26 @@ public class GroundPlanet : MonoBehaviour
         Vector3 gravityUp = (target_transform.position - transform.position).normalized;
         Vector3 localUp = target_transform.up;
         Rigidbody target_rigidbody = target_transform.GetComponent<Rigidbody>();
+        Vector3 gravity_force = -gravityUp * target_rigidbody.mass * Mathf.Pow(target_rigidbody.velocity.magnitude, 2) / Vector3.Distance(transform.position, target_transform.position);
 
-
-        target_rigidbody.AddForce(gravityUp * gravity * Mathf.Pow(target_rigidbody.velocity.magnitude, 2) / Vector3.Distance(transform.position, target_transform.position), ForceMode.Acceleration);
+        //target_rigidbody.AddForce(gravityUp * gravity * Mathf.Pow(target_rigidbody.velocity.magnitude, 2) / Vector3.Distance(transform.position, target_transform.position), ForceMode.Acceleration);
+        target_rigidbody.AddForce(gravity_force, ForceMode.Force);
 
         Quaternion targetRotation = Quaternion.FromToRotation(localUp, gravityUp) * target_transform.rotation;
         target_transform.rotation = Quaternion.Slerp(target_transform.rotation, targetRotation, 0.9f);
+    }
+    public void Gravity(Transform target_transform)
+    {
+        Vector3 gravityUp = (target_transform.position - transform.position).normalized;
+        Vector3 localUp = target_transform.up;
+        Rigidbody target_rigidbody = target_transform.GetComponent<Rigidbody>();
+
+
+        target_rigidbody.AddForce(gravityUp * gravity, ForceMode.Acceleration);
+
+        Quaternion targetRotation = Quaternion.FromToRotation(localUp, -gravityUp) * target_transform.rotation;
+        target_transform.rotation = Quaternion.Slerp(target_transform.rotation, targetRotation, 0.9f);
+
     }
     public void PlayerOnPlanet()
     {
